@@ -1,13 +1,30 @@
 <template>
-  <div class="cart">
-    <h1>This is an cart page</h1>
+  <div class="cart-content">
+    <h1>Shopping Cart</h1>
+    <CartList />
+    <h2>Subtotal: {{subtotalCart}}</h2>
   </div>
 </template>
 
 <script lang="ts">
+import CartList from '@/components/CartList.vue';
+import { IRootState } from '@/store';
 import { defineComponent } from 'vue';
+import { MapperForState, mapState } from 'vuex';
 
 export default defineComponent({
-  name: 'CartView'
+  components: { CartList },
+  name: 'CartView',
+  computed: {
+    ...mapState<MapperForState>({
+      subtotalCart: (state: IRootState) => state.product.subtotalCart
+    }),
+  }
 });
 </script>
+
+<style lang="scss" scoped>
+.cart-content {
+  padding: 20px 10px;
+}
+</style>

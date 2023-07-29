@@ -31,6 +31,8 @@
     "src/**/*.ts",
     "src/**/*.tsx",
     "src/**/*.vue",
+    "src/**/*.png",
+    "src/**/*.jpg",
     "tests/**/*.ts",
     "tests/**/*.tsx"
   ],
