@@ -15,7 +15,7 @@
 <script lang="ts">
 import { IRootState } from '@/store';
 import { defineComponent } from 'vue'
-import { MapperForState, mapState } from 'vuex';
+import { mapGetters, MapperForState, mapState } from 'vuex';
 import logo from '../assets/images/logo.png';
 import cart from '../assets/images/shopping-cart.png';
 
@@ -28,9 +28,9 @@ export default defineComponent({
     }
   },
   computed: {
-    ...mapState<MapperForState>({
-      totalCartCount: (state: IRootState) => state.product.totalCartCount
-    }),
+    ...mapGetters({
+      totalCartCount: 'product/totalCartCount',
+    })
   }
 })
 </script>

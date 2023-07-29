@@ -10,7 +10,6 @@ export interface IProductsState {
   cartItems: Array<ICartItem>
   selectedBrand: number | null
   subtotalCart: string
-  totalCartCount: number
 }
 
 export const productList = {
@@ -18,8 +17,7 @@ export const productList = {
     products: [],
     cartItems: [],
     selectedBrand: null,
-    subtotalCart: '',
-    totalCartCount: 0
+    subtotalCart: ''
   }),
   getters: {
     filterProducts(state: IProductsState) {
@@ -34,8 +32,8 @@ export const productList = {
         const productItem = [...state.products].find(productItem => productItem.type === 'simple' ? productItem.id === item.id : productItem.variants.some((variant: any) => variant.product.id === item.id))
         const productSizeIndex = productItem.type !== 'simple' ? productItem.variants.find((variant: any) => variant.product.id === item.id).attributes.find((item: any) => item.code === 'size').value_index: undefined
         const productSize = productItem.type !== 'simple' ? productItem.configurable_options.find((item: any) => item.attribute_code === 'size').values.find((item: any) => item.value_index === productSizeIndex).label: undefined
-        const productColorIndex = productItem.type !== 'simple' ? productItem.variants.find((variant: any) => variant.product.id === item.id).attributes.find((item: any) => item.code === 'size').value_index: undefined
-        const productColor = productItem.type !== 'simple' ? productItem.configurable_options.find((item: any) => item.attribute_code === 'size').values.find((item: any) => item.value_index === productColorIndex).label: undefined
+        const productColorIndex = productItem.type !== 'simple' ? productItem.variants.find((variant: any) => variant.product.id === item.id).attributes.find((item: any) => item.code === 'color').value_index: undefined
+        const productColor = productItem.type !== 'simple' ? productItem.configurable_options.find((item: any) => item.attribute_code === 'color').values.find((item: any) => item.value_index === productColorIndex).label: undefined
         const productImage = productItem.type !== 'simple' ? productItem.variants.find((variant: any) => variant.product.id === item.id).product.image : productItem.image
         return {
           id: item.id,
@@ -49,9 +47,11 @@ export const productList = {
           count: item.count
         }
       })
-      state.totalCartCount = [...cartProductArray].reduce((totalCount, cartProduct) => totalCount + cartProduct.count, 0)
       state.subtotalCart = priceFormat('USD',[...cartProductArray].reduce((totalPrice, cartProduct) => totalPrice + cartProduct.count * cartProduct.regular_price.value, 0))
       return cartProductArray
+    },
+    totalCartCount(state: IProductsState) {
+      return [...state.cartItems].reduce((totalCount, cartItem) => totalCount + cartItem.count, 0)
     },
   },
   mutations: {
