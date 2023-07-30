@@ -1,8 +1,5 @@
+import { IBrand, IBrandsState } from "@/types";
 import { Commit } from "vuex";
-
-export interface IBrandsState {
-  brands: Array<any>
-}
 
 export const brands = {
   state: (): IBrandsState => ({
@@ -11,19 +8,18 @@ export const brands = {
   getters: {
   },
   mutations: {
-    setBrands(state: IBrandsState, brands: Array<any>) {
+    setBrands(state: IBrandsState, brands: Array<IBrand>) {
       state.brands = brands
     },
-
   },
   actions: {
-    async fetchBrands({state, commit}: {state: IBrandsState, commit: Commit}) {
+    async fetchBrands({ state, commit }: { state: IBrandsState, commit: Commit }) {
       try {
-          const response = await fetch('./brands.json')
+        const response = await fetch('./brands.json')
           .then((res) => res.json());
-          commit('setBrands', response)
+        commit('setBrands', response)
       } catch (e) {
-          console.error(e)
+        console.error(e)
       }
     },
   },

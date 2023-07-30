@@ -2,42 +2,47 @@
   <div class="header">
     <nav class="header__navigate">
       <router-link class="header__link" to="/">
-        <img class="header__image" :src="logo" alt="">
+        <img class="header__image" :src="logo" alt="" />
       </router-link>
-      <router-link class="header__link header__link--cart" to="/cart" v-if="$route.name !== 'cart'">
-        <img class="header__image" :src="cart" alt="">
-        <div class="cart-count">{{totalCartCount}}</div>
+      <router-link
+        class="header__link header__link--cart"
+        to="/cart"
+        v-if="$route.name !== 'cart'"
+      >
+        <img class="header__image" :src="cart" alt="" />
+        <div class="cart-count">{{ totalCartCount }}</div>
       </router-link>
     </nav>
   </div>
 </template>
 
 <script lang="ts">
-import { IRootState } from '@/store';
-import { defineComponent } from 'vue'
-import { mapGetters, MapperForState, mapState } from 'vuex';
-import logo from '../assets/images/logo.png';
-import cart from '../assets/images/shopping-cart.png';
+import { defineComponent } from "vue";
+import { mapGetters, MapperForState, mapState } from "vuex";
+import logo from "../assets/images/logo.png";
+import cart from "../assets/images/shopping-cart.png";
 
 export default defineComponent({
-  name: 'Header',
+  name: "Header",
   data() {
     return {
       logo: logo,
-      cart: cart
-    }
+      cart: cart,
+    };
   },
   computed: {
     ...mapGetters({
-      totalCartCount: 'product/totalCartCount',
-    })
-  }
-})
+      totalCartCount: "product/totalCartCount",
+    }),
+  },
+});
 </script>
 
 <style lang="scss" scoped>
 .header {
   padding: 0 20px;
+  max-width: 1920px;
+  margin: 0 auto;
   &__navigate {
     display: flex;
     justify-content: center;

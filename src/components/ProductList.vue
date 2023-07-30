@@ -1,7 +1,11 @@
 <template>
   <div class="product-list">
     <template v-if="filterProducts.length > 0">
-      <ProductItem v-for="product in filterProducts" :key="product.id" :product="product"/>
+      <ProductItem
+        v-for="product in filterProducts"
+        :key="product.id"
+        :product="product"
+      />
     </template>
     <template v-else>
       <h3>Products no found</h3>
@@ -10,31 +14,31 @@
 </template>
 
 <script lang="ts">
-import { IRootState } from '@/store'
-import { defineComponent } from 'vue'
-import { mapActions, mapGetters, MapperForState, mapState  } from 'vuex'
-import ProductItem from './ProductItem.vue'
+import { IRootState } from "@/types";
+import { defineComponent } from "vue";
+import { mapActions, mapGetters, MapperForState, mapState } from "vuex";
+import ProductItem from "./ProductItem.vue";
 
 export default defineComponent({
   components: { ProductItem },
-  name: 'ProductList',
+  name: "ProductList",
   methods: {
     ...mapActions({
-      fetchProducts: 'product/fetchProducts',
-    })
+      fetchProducts: "product/fetchProducts",
+    }),
   },
   mounted() {
-    this.fetchProducts()
+    this.fetchProducts();
   },
   computed: {
     ...mapState<MapperForState>({
-      products: (state: IRootState) => state.product.products
+      products: (state: IRootState) => state.product.products,
     }),
     ...mapGetters({
-      filterProducts: 'product/filterProducts',
-    })
-  }
-})
+      filterProducts: "product/filterProducts",
+    }),
+  },
+});
 </script>
 
 <style lang="scss" scoped>

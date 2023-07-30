@@ -1,40 +1,54 @@
 <template>
   <ul class="filter">
-    <li class="filter__item" :class="{'filter__item--active': selectedBrand === null}" @click="setSelectedBrand(null)">All brands</li>
-    <li class="filter__item" :class="{'filter__item--active': brand.id === selectedBrand}" v-for="brand in brands" :key="brand.id" @click="setSelectedBrand(brand.id)">{{brand.title}}</li>
+    <li
+      class="filter__item"
+      :class="{ 'filter__item--active': selectedBrand === null }"
+      @click="setSelectedBrand(null)"
+    >
+      All brands
+    </li>
+    <li
+      class="filter__item"
+      :class="{ 'filter__item--active': brand.id === selectedBrand }"
+      v-for="brand in brands"
+      :key="brand.id"
+      @click="setSelectedBrand(brand.id)"
+    >
+      {{ brand.title }}
+    </li>
   </ul>
 </template>
 
 <script lang="ts">
-import { IRootState } from '@/store'
-import { defineComponent } from 'vue'
-import { mapActions, mapMutations, MapperForState, mapState } from 'vuex'
+import { IRootState } from "@/types";
+import { defineComponent } from "vue";
+import { mapActions, mapMutations, MapperForState, mapState } from "vuex";
 
 export default defineComponent({
-  name: 'Filter',
+  name: "Filter",
   props: {
     modelValue: {
-      type: Number
+      type: Number,
     },
   },
   methods: {
     ...mapActions({
-      fetchBrands: 'brand/fetchBrands',
+      fetchBrands: "brand/fetchBrands",
     }),
     ...mapMutations({
-      setSelectedBrand: 'product/setSelectedBrand'
+      setSelectedBrand: "product/setSelectedBrand",
     }),
   },
   mounted() {
-    this.fetchBrands()
+    this.fetchBrands();
   },
   computed: {
     ...mapState<MapperForState>({
       brands: (state: IRootState) => state.brand.brands,
-      selectedBrand: (state: IRootState) => state.product.selectedBrand
-    })
-  }  
-})
+      selectedBrand: (state: IRootState) => state.product.selectedBrand,
+    }),
+  },
+});
 </script>
 
 <style lang="scss" scoped>
@@ -42,7 +56,7 @@ export default defineComponent({
   width: 100%;
   max-width: 320px;
   padding: 0 20px;
-  
+
   max-width: 120px;
   padding: 0 10px;
   height: 100%;
@@ -58,15 +72,15 @@ export default defineComponent({
     text-align: left;
     border-radius: 5px;
     border: 1px solid transparent;
-    transition: .3s;
+    transition: 0.3s;
     &:hover {
-      transition: .3s;
+      transition: 0.3s;
       border-color: #041d36;
       color: #041d36;
       cursor: pointer;
     }
     &--active {
-      transition: .3s;
+      transition: 0.3s;
       background-color: #041d36;
       border-color: #041d36;
       color: #fff;

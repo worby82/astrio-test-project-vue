@@ -1,16 +1,16 @@
 <template>
-  <Header/>
-  <router-view/>
+  <Header />
+  <router-view />
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
-import Header from './components/Header.vue';
+import { defineComponent } from "vue";
+import Header from "./components/Header.vue";
 
 export default defineComponent({
   components: {
-    Header    
-  }
+    Header,
+  },
 });
 </script>
 
@@ -93,34 +93,36 @@ a {
   font-size: 16px;
   line-height: 19px;
   text-decoration: none;
-  transition: .3s;
+  transition: 0.3s;
   color: #1e64aa;
   &:hover {
-    transition: .3s;
+    transition: 0.3s;
     color: #041d36;
   }
 }
 
-input:focus, input:active,
-button:focus, button:active {
-    outline: none;
+input:focus,
+input:active,
+button:focus,
+button:active {
+  outline: none;
 }
 
 button::-moz-focus-inner {
-	padding: 0;
-	border: 0;
+  padding: 0;
+  border: 0;
 }
 button {
   background: none;
 }
 
 label {
-	cursor: pointer;
+  cursor: pointer;
 }
 
 * {
   scrollbar-width: thin;
-  scrollbar-color: rgba(16, 24, 32, .2);
+  scrollbar-color: rgba(16, 24, 32, 0.2);
 }
 
 *::-webkit-scrollbar {
@@ -133,7 +135,7 @@ label {
 }
 
 *::-webkit-scrollbar-thumb {
-  background-color: rgba(16, 24, 32, .2);
+  background-color: rgba(16, 24, 32, 0.2);
   border-radius: 10px;
   border: none;
 }
@@ -146,12 +148,12 @@ input::-webkit-inner-spin-button {
   border: 1px solid #041d36;
   padding: 5px 15px;
   border-radius: 5px;
-  transition: .3s;
+  transition: 0.3s;
   text-transform: uppercase;
   max-width: 130px;
   margin: 0 auto;
   &:hover {
-    transition: .3s;
+    transition: 0.3s;
     background-color: #041d36;
     color: #fff;
     cursor: pointer;

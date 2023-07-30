@@ -1,10 +1,6 @@
 <template>
   <div class="product-item">
-    <img
-      class="product-item__image"
-      :src="image"
-      :alt="product.title"
-    />
+    <img class="product-item__image" :src="image" :alt="product.title" />
     <div class="product-item__info">
       <h3>{{ product.title }}</h3>
       <p>brand: {{ product.brand }}</p>
@@ -25,41 +21,81 @@
           <template v-if="option.attribute_code === 'color'">
             <div
               class="product-item__option-item"
-              :class="[{'product-item__option-item--active': selectedColor === value.value_index},{'product-item__option-item--disable': !variants.includes(value.value_index) && variantsCode === 'size'}]"
+              :class="[
+                {
+                  'product-item__option-item--active':
+                    selectedColor === value.value_index,
+                },
+                {
+                  'product-item__option-item--disable':
+                    !variantsId.includes(value.value_index) &&
+                    variantsCode === 'size',
+                },
+              ]"
               v-for="value in option.values"
               :key="value.value_index"
               :style="{ 'background-color': value.value }"
-              @click="variants.length !== 0 && variantsCode !== null && variantsCode === 'size' ? variants.includes(value.value_index) && setSelectedColor(value.value_index) : setSelectedColor(value.value_index)"
+              @click="
+                variantsId.length !== 0 &&
+                variantsCode !== null &&
+                variantsCode === 'size'
+                  ? variantsId.includes(value.value_index) &&
+                    setSelectedColor(value.value_index)
+                  : setSelectedColor(value.value_index)
+              "
             ></div>
           </template>
           <template v-else>
             <div
               class="product-item__option-item"
-              :class="[{'product-item__option-item--active': selectedSize === value.value_index},{'product-item__option-item--disable': !variants.includes(value.value_index) && variantsCode === 'color'}]"
+              :class="[
+                {
+                  'product-item__option-item--active':
+                    selectedSize === value.value_index,
+                },
+                {
+                  'product-item__option-item--disable':
+                    !variantsId.includes(value.value_index) &&
+                    variantsCode === 'color',
+                },
+              ]"
               v-for="value in option.values"
               :key="value.value_index"
-              @click="variants.length !== 0 && variantsCode !== null && variantsCode === 'color' ? variants.includes(value.value_index) && setSelectedSize(value.value_index): setSelectedSize(value.value_index)"
+              @click="
+                variantsId.length !== 0 &&
+                variantsCode !== null &&
+                variantsCode === 'color'
+                  ? variantsId.includes(value.value_index) &&
+                    setSelectedSize(value.value_index)
+                  : setSelectedSize(value.value_index)
+              "
             >
               {{ value.label }}
             </div>
           </template>
         </div>
+        <template v-if="selectedColor && selectedSize">
+          <button
+            v-if="!cartItems.some((item) => item.id === getProductId())"
+            class="button"
+            @click="setCartItem({ id: getProductId(), count: 1 })"
+          >
+            Add to cart
+          </button>
+          <p v-else>Product in the shopping cart</p>
+        </template>
+        <p v-else>Сhoose a color and size</p>
       </template>
-      <button
-        v-if="selectedColor && selectedSize && product.type !== 'simple' && 
-          !cartItems.some((item) => item.id === getProductId()) || product.type === 'simple' && 
-          !cartItems.some((item) => item.id === getProductId())
-        "
-        class="button"
-        @click="setCartItem({ id: getProductId(), count: 1 })"
-      >
-        Add to cart
-      </button>
-      <p v-if="selectedColor && selectedSize && product.type !== 'simple' && 
-          cartItems.some((item) => item.id === getProductId()) || product.type === 'simple' && 
-          cartItems.some((item) => item.id === getProductId())">
-        Product in the shopping cart
-      </p>
+      <template v-else>
+        <button
+          v-if="!cartItems.some((item) => item.id === getProductId())"
+          class="button"
+          @click="setCartItem({ id: getProductId(), count: 1 })"
+        >
+          Add to cart
+        </button>
+        <p v-else>Product in the shopping cart</p>
+      </template>
     </div>
   </div>
 </template>
@@ -68,7 +104,15 @@
 import { defineComponent } from "vue";
 import { mapMutations, MapperForState, mapState } from "vuex";
 import priceFormat from "@/utils/priceFormat";
-import { IRootState } from "@/store";
+import {
+  AttributeCode,
+  COLOR,
+  IRootState,
+  IVariant,
+  IVariantAttribute,
+  SIMPLE,
+  SIZE,
+} from "@/types";
 
 export default defineComponent({
   name: "ProductItem",
@@ -76,8 +120,10 @@ export default defineComponent({
     return {
       selectedColor: null as null | number,
       selectedSize: null as null | number,
-      variants: [],
-      variantsCode:  null as null | string,
+      selectedVariant: undefined as IVariant | undefined,
+      variants: [] as Array<IVariant>,
+      variantsId: [] as Array<number | undefined>,
+      variantsCode: null as null | string,
       image: this.product.image,
       priceFormat,
     };
@@ -90,60 +136,80 @@ export default defineComponent({
   },
   methods: {
     setSelectedColor(id: number) {
-      if(this.selectedColor !== id) {
-        if(this.selectedSize === null) {
-          this.setVariants('color', id)
-        } else if(this.selectedColor !== null && this.selectedSize !== null) {
-          this.selectedSize = null
-          this.setVariants('color', id)
+      if (this.selectedColor !== id) {
+        if (this.selectedSize === null) {
+          this.setVariants(COLOR, id);
+        } else if (this.selectedColor !== null && this.selectedSize !== null) {
+          this.selectedSize = null;
+          this.setVariants(COLOR, id);
         }
         this.selectedColor = id;
-        if(this.selectedColor && this.selectedSize) {
-          this.image = this.product.variants.find((item: any) => item.product.id === this.getProductId()).product.image
-        } else {
-          this.image = this.product.image
-        }
       } else {
-        this.selectedColor = null
-        if(this.selectedSize === null) {
-          this.variants = []
-          this.variantsCode = null
+        this.selectedColor = null;
+        if (this.selectedSize === null) {
+          this.variantsId = [];
+          this.variantsCode = null;
         }
       }
+      this.getImage();
     },
     setSelectedSize(id: number) {
-      if(this.selectedSize !== id) {
-        if(this.selectedColor === null) {
-          this.setVariants('size', id)
-        } else if(this.selectedColor !== null && this.selectedSize !== null) {
-          this.selectedColor = null
-          this.setVariants('size', id)
+      if (this.selectedSize !== id) {
+        if (this.selectedColor === null) {
+          this.setVariants(SIZE, id);
+        } else if (this.selectedColor !== null && this.selectedSize !== null) {
+          this.selectedColor = null;
+          this.setVariants(SIZE, id);
         }
         this.selectedSize = id;
-        if(this.selectedColor && this.selectedSize) {
-          this.image = this.product.variants.find((item: any) => item.product.id === this.getProductId()).product.image
-        } else {
-          this.image = this.product.image
-        }
       } else {
-        this.selectedSize = null
-        if(this.selectedColor === null) {
-          this.variants = []
-          this.variantsCode = null
+        this.selectedSize = null;
+        if (this.selectedColor === null) {
+          this.variantsId = [];
+          this.variantsCode = null;
         }
       }
+      this.getImage();
     },
-    setVariants(code: string, id: number) {
-      const productVariants = this.product.variants.filter((item: any)=> item.attributes.find((atribute: any) => atribute.code === code).value_index === id)
-      this.variants = productVariants.map((item: any) => item.attributes.find((atribute: any) => atribute.code !== code).value_index)
-      this.variantsCode = code
+    setVariants(code: AttributeCode, id: number) {
+      this.variants = this.product.variants.filter(
+        (item: IVariant) =>
+          item.attributes.find(
+            (atribute: IVariantAttribute) => atribute.code === code
+          )!.value_index === id
+      );
+      this.variantsId = this.variants.map(
+        (item: IVariant) =>
+          item.attributes.find(
+            (atribute: IVariantAttribute) => atribute.code !== code
+          )!.value_index
+      );
+      this.variantsCode = code;
     },
     getProductId() {
-      if(this.product.type === 'simple') {
-        return this.product.id
+      if (this.product.type === SIMPLE) {
+        return this.product.id;
       } else {
-        const productId = this.product.variants.filter((item: any)=> item.attributes.find((atribute: any) => atribute.code === 'color').value_index === this.selectedColor).find((item: any)=> item.attributes.find((atribute: any) => atribute.code === 'size').value_index === this.selectedSize).product.id
-        return productId
+        this.selectedVariant = this.variants!.find(
+          (item: IVariant) =>
+            item.attributes.find(
+              (atribute: IVariantAttribute) =>
+                atribute.code !== this.variantsCode
+            )!.value_index ===
+            (this.variantsCode !== SIZE
+              ? this.selectedSize
+              : this.selectedColor)
+        );
+        const productId = this.selectedVariant?.product.id;
+        return productId;
+      }
+    },
+    getImage() {
+      if (this.selectedColor && this.selectedSize) {
+        this.getProductId();
+        this.image = this.selectedVariant?.product.image;
+      } else {
+        this.image = this.product.image;
       }
     },
     ...mapMutations({
@@ -198,7 +264,7 @@ export default defineComponent({
       border: 2px solid #0ddb30;
     }
     &--disable {
-      opacity: 0.5;
+      opacity: 0.3;
       cursor: default;
     }
   }

@@ -1,7 +1,23 @@
 <template>
   <div class="cart-list">
     <template v-if="cartProducts.length > 0">
-      <CartItem v-for="cartItem in cartProducts" :key="cartItem.id" :cartItem="cartItem" />
+      <div class="cart-list__header">
+        <div class="cart-list__row">
+          <div class="cart-list__element"></div>
+          <div class="cart-list__element cart-list__element--left">Item</div>
+          <div class="cart-list__element">Price</div>
+          <div class="cart-list__element">Quantity</div>
+          <div class="cart-list__element">Total</div>
+          <div class="cart-list__element"></div>
+        </div>
+      </div>
+      <div class="cart-list__body">
+        <CartItem
+          v-for="cartItem in cartProducts"
+          :key="cartItem.id"
+          :cartItem="cartItem"
+        />
+      </div>
     </template>
     <template v-else>
       <h3>the shopping cart is empty</h3>
@@ -17,7 +33,7 @@ import CartItem from "./CartItem.vue";
 export default defineComponent({
   name: "CartList",
   components: {
-    CartItem
+    CartItem,
   },
   computed: {
     ...mapGetters({
@@ -29,10 +45,36 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .cart-list {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  height: 100%;
-  width: 100%;
+  padding-top: 20px;
+  &__header {
+    display: none;
+    @media (min-width: 640px) {
+      display: block;
+    }
+  }
+  &__row {
+    display: grid;
+    grid-template-columns: 180px auto 100px 100px 100px 30px;
+    align-items: center;
+    grid-template-rows: auto;
+  }
+  &__element {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    &--left {
+      padding: 5px 10px;
+      @media (min-width: 640px) {
+        align-items: flex-start;
+        text-align: left;
+      }
+    }
+    @media (max-width: 639px) {
+      padding: 5px 10px;
+      align-items: flex-end;
+      text-align: right;
+    }
+  }
 }
 </style>

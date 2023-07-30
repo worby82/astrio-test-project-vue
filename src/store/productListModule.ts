@@ -1,19 +1,10 @@
+import { IProductsState, ICartItem, SIMPLE, IVariant, SIZE, COLOR, IProductItem } from "@/types";
+import { getAttributeLabel } from "@/utils/getAttributeLabel";
 import priceFormat from "@/utils/priceFormat";
 import { Commit } from "vuex";
 
-export interface ICartItem {
-  id: number
-  count: number
-}
-export interface IProductsState {
-  products: Array<any>
-  cartItems: Array<ICartItem>
-  selectedBrand: number | null
-  subtotalCart: string
-}
-
 export const productList = {
-  state: ():IProductsState => ({
+  state: (): IProductsState => ({
     products: [],
     cartItems: [],
     selectedBrand: null,
@@ -21,33 +12,31 @@ export const productList = {
   }),
   getters: {
     filterProducts(state: IProductsState) {
-      if(state.selectedBrand === null) {
+      if (state.selectedBrand === null) {
         return [...state.products]
       } else {
-        return [...state.products].filter( item => item.brand === state.selectedBrand)
+        return [...state.products].filter(item => item.brand === state.selectedBrand)
       }
     },
     cartProducts(state: IProductsState) {
       const cartProductArray = [...state.cartItems].map(item => {
-        const productItem = [...state.products].find(productItem => productItem.type === 'simple' ? productItem.id === item.id : productItem.variants.some((variant: any) => variant.product.id === item.id))
-        const productSizeIndex = productItem.type !== 'simple' ? productItem.variants.find((variant: any) => variant.product.id === item.id).attributes.find((item: any) => item.code === 'size').value_index: undefined
-        const productSize = productItem.type !== 'simple' ? productItem.configurable_options.find((item: any) => item.attribute_code === 'size').values.find((item: any) => item.value_index === productSizeIndex).label: undefined
-        const productColorIndex = productItem.type !== 'simple' ? productItem.variants.find((variant: any) => variant.product.id === item.id).attributes.find((item: any) => item.code === 'color').value_index: undefined
-        const productColor = productItem.type !== 'simple' ? productItem.configurable_options.find((item: any) => item.attribute_code === 'color').values.find((item: any) => item.value_index === productColorIndex).label: undefined
-        const productImage = productItem.type !== 'simple' ? productItem.variants.find((variant: any) => variant.product.id === item.id).product.image : productItem.image
-        return {
-          id: item.id,
-          type: productItem.type,
-          image: productImage,
-          regular_price: productItem.regular_price,
-          brand: productItem.brand,
-          title: productItem.title,
-          size: productSize,
-          color: productColor,
-          count: item.count
+        const productItem = [...state.products].find(productItem => productItem.type === SIMPLE ? productItem.id === item.id : productItem?.variants?.some((variant: IVariant) => variant.product.id === item.id))
+        const productImage = productItem && productItem.type !== SIMPLE ? productItem.variants?.find((variant: IVariant) => variant.product.id === item.id)?.product.image : productItem?.image
+        if (productItem) {
+          return {
+            id: item.id,
+            type: productItem.type,
+            image: productImage,
+            regular_price: productItem.regular_price,
+            brand: productItem.brand,
+            title: productItem.title,
+            size: getAttributeLabel(productItem, SIZE, item.id),
+            color: getAttributeLabel(productItem, COLOR, item.id),
+            count: item.count
+          }
         }
       })
-      state.subtotalCart = priceFormat('USD',[...cartProductArray].reduce((totalPrice, cartProduct) => totalPrice + cartProduct.count * cartProduct.regular_price.value, 0))
+      state.subtotalCart = priceFormat('USD', [...cartProductArray].reduce((totalPrice, cartProduct) => totalPrice + (cartProduct ? cartProduct.count * cartProduct.regular_price.value : 0), 0))
       return cartProductArray
     },
     totalCartCount(state: IProductsState) {
@@ -55,7 +44,7 @@ export const productList = {
     },
   },
   mutations: {
-    setProducts(state: IProductsState, products: Array<any>) {
+    setProducts(state: IProductsState, products: Array<IProductItem>) {
       state.products = products
     },
     setCartItem(state: IProductsState, cartItem: ICartItem) {
@@ -63,8 +52,8 @@ export const productList = {
     },
     setCartItemCount(state: IProductsState, cartItem: ICartItem) {
       state.cartItems = [...state.cartItems].map(item => {
-        if(item.id === cartItem.id) {
-          return {id: item.id, count: cartItem.count}
+        if (item.id === cartItem.id) {
+          return { id: item.id, count: cartItem.count }
         }
         return item
       })
@@ -77,21 +66,15 @@ export const productList = {
     }
   },
   actions: {
-    async fetchProducts({state, commit}: {state: IProductsState, commit: Commit}) {
+    async fetchProducts({ state, commit }: { state: IProductsState, commit: Commit }) {
       try {
         const response = await fetch('./products.json')
-        .then((res) => res.json());
+          .then((res) => res.json());
         commit('setProducts', response)
       } catch (e) {
         console.error(e)
       }
     },
-    // deleteCartItem({state, commit}: {state: IProductsState, commit: Commit}, CartItemId: number) {
-    //   commit('deleteCartItem', CartItemId)
-    // },
-    // addCartItem({state, commit}: {state: IProductsState, commit: Commit}, CartItem: ICartItem) {
-    //   commit('setCartItem', CartItem)
-    // },
   },
   namespaced: true
 }
